@@ -1,0 +1,16 @@
+[package]
+name = "pygmentize"
+version = "0.1.0"
+edition = "2021"
+description = "pygmentize wrapper for syntax highlighting"
+documentation = "https://docs.rs/pygmentize"
+keywords = ["syntax", "highlighting", "highlighter", "coloring", "html"]
+categories = ["text-processing", "web-programming"]
+repository = "https://github.com/vallentin/pygmentize"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+
+[target.'cfg(windows)'.dependencies]
+winapi-util = "0.1"
