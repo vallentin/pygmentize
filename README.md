@@ -20,7 +20,7 @@ let html = pygmentize::highlight(code, Some("rust"), &HtmlFormatter::default())?
 println!("{html}");
 ```
 
-## Output
+### Output
 
 _(whitespace added to improve clarity)_
 
@@ -45,6 +45,12 @@ _(whitespace added to improve clarity)_
 </pre>
 </div>
 ```
+
+### Rendered
+
+_(with the [Dracula theme](https://draculatheme.com))_
+
+![image](https://user-images.githubusercontent.com/17464404/235512548-76086e98-dd04-4cff-90ab-e3cfde0d206c.png)
 
 ## Install
 
