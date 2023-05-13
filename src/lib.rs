@@ -176,7 +176,10 @@ where
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(PygmentizeError::Process)?;
+        .map_err(|err| match err {
+            _ if err.kind() == io::ErrorKind::NotFound => PygmentizeError::NotFound(err),
+            _ => PygmentizeError::Process(err),
+        })?;
 
     if let Some(data) = stdin {
         let mut stdin = child.stdin.take().expect("expected stdin");
@@ -219,7 +222,10 @@ fn enable_virtual_terminal_processing() {
 #[derive(Debug)]
 pub enum PygmentizeError {
     Process(io::Error),
+    /// pygmentize was not found or not installed.
+    NotFound(io::Error),
     InvalidUtf8(FromUtf8Error),
+    /// The pygmentize binary returned an error.
     Pygmentize(ExitStatus, String),
 }
 
@@ -227,6 +233,7 @@ impl error::Error for PygmentizeError {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self {
             Self::Process(err) => Some(err),
+            Self::NotFound(err) => Some(err),
             Self::InvalidUtf8(err) => Some(err),
             Self::Pygmentize(_, _) => None,
         }
@@ -237,6 +244,9 @@ impl fmt::Display for PygmentizeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Process(err) => err.fmt(f),
+            Self::NotFound(_err) => {
+                write!(f, "pygmentize was not found or not installed")
+            }
             Self::InvalidUtf8(err) => err.fmt(f),
             Self::Pygmentize(status, stderr) => {
                 write!(f, "pygmentize exited with {status}: {stderr}")
