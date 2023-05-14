@@ -56,17 +56,32 @@ pub use formatters::prelude::*;
 
 mod formatters;
 
+use std::borrow::Cow;
 use std::error;
 use std::ffi::OsStr;
 use std::fmt;
 use std::io::{self, Write};
 use std::process::{Command, ExitStatus, Stdio};
 use std::string::FromUtf8Error;
+use std::sync::RwLock;
 
 #[cfg(windows)]
 use winapi_util::console::Console;
 
-const PYGMENTIZE: &str = "pygmentize";
+static PYGMENTIZE: RwLock<Cow<'static, str>> = RwLock::new(Cow::Borrowed("pygmentize"));
+
+/// Overwrite the path to the `pygmentize` binary. The default path is `"pygmentize"`.
+///
+/// If `pygmentize` is installed in a virtual environment, within your crate directory,
+/// i.e. `Cargo.lock` and `env/` being within the same directory. Then assuming that
+/// the current directory is the same. Then the path can be overridden by doing:
+///
+/// ```no_run
+/// pygmentize::set_bin_path("./env/Scripts/pygmentize");
+/// ```
+pub fn set_bin_path(pygmentize: impl Into<Cow<'static, str>>) {
+    *PYGMENTIZE.write().unwrap() = pygmentize.into();
+}
 
 /// Applies syntax highlighting to `code` written in `lang`,
 /// and outputs in the format of `F: `[`PygmentizeFormatter`].
@@ -166,7 +181,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let mut child = Command::new(PYGMENTIZE)
+    let mut child = Command::new(PYGMENTIZE.read().unwrap().as_ref())
         .args(args)
         .stdin(if stdin.is_some() {
             Stdio::piped()
@@ -223,6 +238,12 @@ fn enable_virtual_terminal_processing() {
 pub enum PygmentizeError {
     Process(io::Error),
     /// pygmentize was not found or not installed.
+    ///
+    /// The path to the `pygmentize` binary
+    /// If `pygmentize` is installed but not added to
+    /// the system PATH (e.g. if it is installed in a
+    /// virtual environment), then it can manually be
+    /// set by calling `pygmentize::`[`set_bin_path()`].
     NotFound(io::Error),
     InvalidUtf8(FromUtf8Error),
     /// The pygmentize binary returned an error.
