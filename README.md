@@ -7,6 +7,12 @@
 
 Rust library and wrapper around the [pygmentize](https://pygments.org/docs/cmdline/) CLI. Apply syntax highlighting to over 500 languages and other text formatted. Render into HTML, SVG, LaTeX, and Terminal (ANSI color sequences).
 
+## Rendered HTML Output
+
+_Rendered example of [examples/html.rs](https://github.com/vallentin/pygmentize/blob/master/examples/html.rs)._
+
+![Rendered Example](https://github.com/vallentin/pygmentize/assets/17464404/feedd372-9f36-4065-bbdd-0d7082ddbc0e)
+
 ## Example
 
 ```rust
@@ -50,7 +56,19 @@ _(whitespace added to improve clarity)_
 
 _(with the [Dracula theme](https://draculatheme.com))_
 
-![image](https://user-images.githubusercontent.com/17464404/235512548-76086e98-dd04-4cff-90ab-e3cfde0d206c.png)
+![Rendered Example 2](https://user-images.githubusercontent.com/17464404/235512548-76086e98-dd04-4cff-90ab-e3cfde0d206c.png)
+
+### Override Pygmentize Path
+
+The path to the `pygmentize` binary, can be overridden using `pygmentize::`[`set_bin_path()`](https://docs.rs/pygmentize/*/pygmentize/fn.set_bin_path.html). The default path is `"pygmentize"`.
+
+If `pygmentize` is installed in a virtual environment, within your crate directory,
+i.e. `Cargo.lock` and `env/` being within the same directory. Then assuming that
+the current directory is the same. Then the path can be overridden by doing:
+
+```rust
+pygmentize::set_bin_path("./env/Scripts/pygmentize");
+```
 
 ## Install
 
